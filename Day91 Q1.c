@@ -1,52 +1,61 @@
 #include <stdio.h>
 
-int canPaint(int boards[], int n, int k, int maxTime) {
-    int painters = 1;
-    int current = 0;
+void merge(int arr[], int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
 
-    for (int i = 0; i < n; i++) {
-        if (boards[i] > maxTime)
-            return 0;
+    int L[n1], R[n2];
 
-        if (current + boards[i] <= maxTime) {
-            current += boards[i];
-        } else {
-            painters++;
-            current = boards[i];
-        }
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    int i = 0, j = 0, k = left;
+
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j])
+            arr[k++] = L[i++];
+        else
+            arr[k++] = R[j++];
     }
 
-    return painters <= k;
+    while (i < n1)
+        arr[k++] = L[i++];
+
+    while (j < n2)
+        arr[k++] = R[j++];
+}
+
+void mergeSort(int arr[], int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+
+        merge(arr, left, mid, right);
+    }
 }
 
 int main() {
-    int n, k;
-    scanf("%d %d", &n, &k);
+    int n;
+    scanf("%d", &n);
 
-    int boards[n];
-    int low = 0, high = 0;
+    int arr[n];
 
     for (int i = 0; i < n; i++) {
-        scanf("%d", &boards[i]);
-        if (boards[i] > low)
-            low = boards[i];
-        high += boards[i];
+        scanf("%d", &arr[i]);
     }
 
-    int ans = high;
+    mergeSort(arr, 0, n - 1);
 
-    while (low <= high) {
-        int mid = low + (high - low) / 2;
-
-        if (canPaint(boards, n, k, mid)) {
-            ans = mid;
-            high = mid - 1;
-        } else {
-            low = mid + 1;
-        }
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
     }
 
-    printf("%d\n", ans);
+    printf("\n");
 
     return 0;
 }
